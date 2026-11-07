@@ -1,0 +1,156 @@
+﻿/* ABOUT PAGE HERO */
+.about-page-hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    background: linear-gradient(135deg, #0b0d12 0%, #1a1d24 100%);
+    overflow: hidden;
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+    padding: 0 5%;
+}
+
+    .about-page-hero::before {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        inset: 0;
+        background-image: url('/images/About us.jpg');
+        background-size: cover;
+        background-position: center;
+        opacity: 0.2;
+        z-index: 1;
+    }
+
+/* MISSION & VISION */
+.mission-section {
+    padding: 6rem 5%;
+    background: white;
+}
+
+.mission-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.mission-card {
+    background: var(--bg-light);
+    padding: 3rem;
+    border-radius: var(--radius-lg);
+    border-left: 5px solid var(--accent);
+}
+
+.mission-icon {
+    font-size: 3rem;
+    margin-bottom: 1.5rem;
+}
+
+.mission-card h3 {
+    font-size: 1.75rem;
+    margin-bottom: 1rem;
+    color: var(--text-primary-light);
+}
+
+.mission-card p {
+    color: var(--text-secondary-light);
+    font-size: 1.05rem;
+}
+
+/* VALUES */
+.values-section {
+    padding: 6rem 5%;
+    background: var(--bg-light);
+}
+
+.values-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.value-card {
+    background: white;
+    padding: 2.5rem;
+    border-radius: var(--radius-lg);
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    transition: var(--transition);
+}
+
+    .value-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    }
+
+    .value-card h3 {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        color: var(--accent);
+    }
+
+    .value-card p {
+        color: var(--text-secondary-light);
+    }
+
+/* SPONSORS */
+.sponsors-section {
+    padding: 8rem 5%;
+    background: white;
+    text-align: center;
+}
+
+.sponsor-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 4rem auto 0 auto;
+    align-items: center;
+}
+
+.sponsor-logo {
+    background: var(--bg-light);
+    padding: 1.5rem;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 150px;
+    transition: var(--transition);
+    border: 1px solid transparent;
+}
+
+    .sponsor-logo img {
+        max-width: 90%;
+        max-height: 90px;
+        object-fit: contain;
+        filter: grayscale(100%);
+        opacity: 0.7;
+        transition: var(--transition);
+    }
+
+    .sponsor-logo:hover {
+        background: white;
+        border-color: var(--accent);
+        transform: scale(1.05);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+    }
+
+        .sponsor-logo:hover img {
+            filter: grayscale(0%);
+            opacity: 1;
+        }
+
+/* RESPONSIVE FOR ABOUT PAGE */
+@media (max-width: 768px) {
+    .mission-grid {
+        grid-template-columns: 1fr;
+    }
+}

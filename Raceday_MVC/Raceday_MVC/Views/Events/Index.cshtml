@@ -1,0 +1,194 @@
+﻿@model List<Raceday_MVC.Models.Event>
+
+@{
+    ViewData["Title"] = "Browse Events";
+
+    var now = DateTime.Now;
+    var upcomingEvents = Model?.Where(e => e.EventDate.AddHours(6) > now).OrderBy(e => e.EventDate).ToList()
+                         ?? new List<Raceday_MVC.Models.Event>();
+    var previousEvents = Model?.Where(e => e.EventDate.AddHours(6) <= now).OrderByDescending(e => e.EventDate).ToList()
+                         ?? new List<Raceday_MVC.Models.Event>();
+}
+
+<link rel="stylesheet" href="~/css/home.css" />
+<link rel="stylesheet" href="~/css/events.css" asp-append-version="true" />
+
+<div class="raceday-home">
+
+    <section class="events-hero">
+        <div class="hero-overlay">
+            <div class="hero-content">
+                <p class="hero-eyebrow reveal">UPCOMING RACES</p>
+
+                <h1 class="reveal">
+                    Find Your Next<br />
+                    <span>Challenge.</span>
+                </h1>
+
+                <p class="hero-text reveal">
+                    Browse all available running, cycling, and walking events.
+                    Check the routes, view the weather, and enrol today.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section class="events-list-section">
+
+        @{
+            var fType = ViewBag.EventType as string;
+            var fLocation = ViewBag.Location as string;
+            var fFrom = ViewBag.DateFrom as string;
+            var fTo = ViewBag.DateTo as string;
+        }
+        <form method="get" asp-controller="Events" asp-action="Index" class="filter-bar">
+            <label>
+                Type
+                <select name="eventType">
+                    <option value="">All types</option>
+                    <option value="Run" selected="@(fType == "Run")">Run</option>
+                    <option value="Walk" selected="@(fType == "Walk")">Walk</option>
+                    <option value="Cycle" selected="@(fType == "Cycle")">Cycle</option>
+                </select>
+            </label>
+            <label>
+                Location
+                <input type="text" name="location" value="@fLocation" placeholder="e.g. Pretoria" />
+            </label>
+            <label>
+                From
+                <input type="date" name="dateFrom" value="@fFrom" />
+            </label>
+            <label>
+                To
+                <input type="date" name="dateTo" value="@fTo" />
+            </label>
+            <button type="submit" class="filter-apply">Search</button>
+            <a asp-controller="Events" asp-action="Index" class="filter-clear">Clear</a>
+        </form>
+
+        <div class="section-heading reveal">
+            <h2>Upcoming Events</h2>
+        </div>
+
+        @if (upcomingEvents.Any())
+        {
+            <div class="events-grid">
+
+                @foreach (var eventItem in upcomingEvents)
+                {
+                    <article class="event-card reveal">
+
+                        <div class="event-banner">
+                            <img src="@eventItem.BannerImageUrl" alt="@eventItem.Name" />
+                            <div class="event-type-badge">
+                                @eventItem.EventType
+                            </div>
+                        </div>
+
+                        <div class="event-details">
+
+                            <div class="event-date-box">
+                                <span>@eventItem.EventDate.ToString("MMM")</span>
+                                <strong>@eventItem.EventDate.ToString("dd")</strong>
+                            </div>
+
+                            <div class="event-info">
+                                <h3>@eventItem.Name</h3>
+
+                                <p class="event-location">
+                                    @eventItem.Location
+                                </p>
+
+                                <p class="event-distance">
+                                    @eventItem.DistanceKm km
+                                </p>
+                            </div>
+
+                            <a asp-controller="Events"
+                               asp-action="Details"
+                               asp-route-id="@eventItem.EventId"
+                               class="event-btn">
+                                View Details <span>&rarr;</span>
+                            </a>
+
+                        </div>
+
+                    </article>
+                }
+
+            </div>
+        }
+        else
+        {
+            <div class="no-events reveal">
+                <h3>No events found.</h3>
+                <p>Please check back later.</p>
+            </div>
+        }
+    </section>
+
+    <section id="previous" class="events-list-section">
+
+        <div class="section-heading reveal">
+            <h2>Previous Events</h2>
+        </div>
+
+        @if (previousEvents.Any())
+        {
+            <div class="events-grid">
+
+                @foreach (var eventItem in previousEvents)
+                {
+                    <article class="event-card reveal">
+
+                        <div class="event-banner">
+                            <img src="@eventItem.BannerImageUrl" alt="@eventItem.Name" />
+                            <div class="event-type-badge">
+                                @eventItem.EventType
+                            </div>
+                        </div>
+
+                        <div class="event-details">
+
+                            <div class="event-date-box">
+                                <span>@eventItem.EventDate.ToString("MMM")</span>
+                                <strong>@eventItem.EventDate.ToString("dd")</strong>
+                            </div>
+
+                            <div class="event-info">
+                                <h3>@eventItem.Name</h3>
+                                <p class="event-location">@eventItem.Location</p>
+                                <p class="event-distance">@eventItem.DistanceKm km</p>
+                            </div>
+
+                            <a asp-controller="Events"
+                               asp-action="Details"
+                               asp-route-id="@eventItem.EventId"
+                               class="event-btn">
+                                View Details <span>&rarr;</span>
+                            </a>
+
+                        </div>
+
+                    </article>
+                }
+
+            </div>
+        }
+        else
+        {
+            <div class="no-events reveal">
+                <h3>No previous events yet.</h3>
+                <p>Completed events and their results will appear here.</p>
+            </div>
+        }
+
+    </section>
+
+</div>
+
+@section Scripts {
+    <script src="~/js/home.js"></script>
+    <script src="~/js/events.js"></script>
+}

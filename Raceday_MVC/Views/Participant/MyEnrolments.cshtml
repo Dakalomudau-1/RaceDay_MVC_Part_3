@@ -1,0 +1,22 @@
+﻿@{
+    ViewData["Title"] = "My Enrolments";
+}
+
+<link rel="stylesheet" href="~/css/home.css" />
+<link rel="stylesheet" href="~/css/account.css" />
+
+<div class="raceday-home">
+    <section class="account-hero">
+        <p class="account-eyebrow">PARTICIPANT</p>
+        <h1>My Enrolments</h1>
+        <p class="account-sub">Every event you have joined, with its category and status.</p>
+    </section>
+
+    <section class="account-section">
+        <div id="account-content" data-page="enrolments">Loading...</div>
+    </section>
+</div>
+
+@section Scripts {
+    <script src="~/js/account.js"></script>
+}

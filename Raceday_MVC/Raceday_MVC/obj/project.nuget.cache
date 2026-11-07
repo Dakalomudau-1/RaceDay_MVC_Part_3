@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "oS7IVj4gztg=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\User\\source\\repos\\RaceDay_MVC_Part_3\\Raceday_MVC\\Raceday_MVC\\Raceday_MVC.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\User\\.nuget\\packages\\microsoft.visualstudio.azure.containers.tools.targets\\1.22.1\\microsoft.visualstudio.azure.containers.tools.targets.1.22.1.nupkg.sha512"
+  ],
+  "logs": []
+}

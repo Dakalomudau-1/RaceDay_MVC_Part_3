@@ -1,0 +1,136 @@
+﻿@{
+    ViewData["Title"] = "Organiser Dashboard";
+}
+<link rel="stylesheet" href="~/css/home.css" />
+<link rel="stylesheet" href="~/css/account.css" />
+<div class="raceday-home">
+    <section class="account-hero">
+        <p class="account-eyebrow">ORGANISER</p>
+        <h1>Dashboard</h1>
+        <p class="account-sub">Your events and quick actions.</p>
+    </section>
+    <section class="account-section">
+        <div id="account-content">Loading...</div>
+    </section>
+</div>
+
+@section Scripts {
+    <script>
+        (async function () {
+            const root = document.getElementById("account-content");
+            if (!root) return;
+
+            function esc(s) {
+                return String(s ?? "").replace(/[&<>"']/g, c =>
+                    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+            }
+            function fmtDate(d) {
+                return new Date(d).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+            }
+            function api(path, options = {}) {
+                return fetch("https://localhost:7228" + path, {
+                    credentials: "include",
+                    headers: { "Content-Type": "application/json" },
+                    ...options
+                });
+            }
+
+            try {
+                const meRes = await api("/api/users/me");
+                if (!meRes.ok) {
+                    root.innerHTML = `<div class="account-empty"><h3>Please log in</h3><p>You need to be logged in.</p></div>`;
+                    return;
+                }
+                const me = await meRes.json();
+                if (me.role !== "Organiser") {
+                    root.innerHTML = `<div class="account-empty"><h3>Organisers only</h3></div>`;
+                    return;
+                }
+
+                const organiserId = me.organiserId ?? me.OrganiserId;
+                if (organiserId == null) {
+                    root.innerHTML = `<div class="account-empty"><h3>Something went wrong</h3><p>organiserId missing on /api/users/me. Log out and log in again.</p></div>`;
+                    return;
+                }
+
+                const evRes = await api("/api/events");
+                if (!evRes.ok) {
+                    root.innerHTML = `<div class="account-empty"><h3>Could not load events</h3></div>`;
+                    return;
+                }
+                const all = await evRes.json();
+                const events = all
+                    .filter(e => (e.organiserId ?? e.OrganiserId) === organiserId)
+                    .sort((a, b) => new Date(b.eventDate ?? b.EventDate) - new Date(a.eventDate ?? a.EventDate));
+                const upcoming = events.filter(e => new Date(e.eventDate ?? e.EventDate) >= new Date());
+
+                        root.innerHTML = `
+            <div class="org-summary" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;margin-bottom:1.5rem;">
+                <div class="account-card"><h3>${events.length}</h3><p class="account-meta">Total events</p></div>
+                <div class="account-card"><h3>${upcoming.length}</h3><p class="account-meta">Upcoming</p></div>
+            </div>
+            <div class="account-list">
+                ${events.length === 0
+                    ? `<div class="account-empty"><h3>No events yet</h3><p>Create your first event.</p></div>`
+                    : events.map(e => {
+                        const id = e.eventId ?? e.EventId;
+                        return `
+                        <article class="account-card">
+                            <div>
+                                <h3>${esc(e.name ?? e.Name)}</h3>
+                                <p class="account-meta">${fmtDate(e.eventDate ?? e.EventDate)} · ${esc(e.location ?? e.Location ?? "")} · ${esc(e.eventType ?? e.EventType ?? "")}</p>
+                            </div>
+                            <div class="account-actions">
+                                <a class="account-link" href="/Organiser/EditEvent?id=${id}">Edit</a>
+                                <a class="account-link" href="/Organiser/Enrolments?eventId=${id}">Enrolments</a>
+                                <a class="account-link" href="/Organiser/Results?eventId=${id}">Results</a>
+                                <button type="button" class="account-btn danger" data-delete="${id}">Delete</button>
+                            </div>
+                        </article>`;
+                    }).join("")}
+            </div>
+            <p style="margin-top:1.5rem;">
+                <a class="account-btn" href="/Organiser/CreateEvent">+ Create event</a>
+            </p>`;
+
+                      function askDelete() {
+            return new Promise(resolve => {
+                const overlay = document.createElement("div");
+                overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:9999;";
+                overlay.innerHTML = `
+                    <div style="background:#1a1a1a;color:#fff;border-radius:12px;padding:1.5rem 1.75rem;max-width:360px;width:90%;box-shadow:0 12px 40px rgba(0,0,0,.4);">
+                        <h3 style="margin:0 0 .5rem;font-size:1.15rem;">Delete event?</h3>
+                        <p style="margin:0 0 1.25rem;color:#bbb;font-size:.95rem;">This cannot be undone. Enrolments and results for this event may also be affected.</p>
+                        <div style="display:flex;gap:.75rem;justify-content:flex-end;">
+                            <button type="button" data-ans="no" style="padding:.5rem 1rem;border-radius:8px;border:1px solid #555;background:transparent;color:#fff;cursor:pointer;">Cancel</button>
+                            <button type="button" data-ans="yes" style="padding:.5rem 1rem;border-radius:8px;border:none;background:#c62828;color:#fff;cursor:pointer;">Delete</button>
+                        </div>
+                    </div>`;
+                document.body.appendChild(overlay);
+                overlay.addEventListener("click", e => {
+                    const b = e.target.closest("[data-ans]");
+                    if (!b && e.target !== overlay) return;
+                    const yes = b && b.dataset.ans === "yes";
+                    overlay.remove();
+                    resolve(!!yes);
+                });
+            });
+        }
+
+        root.querySelectorAll("[data-delete]").forEach(btn => {
+            btn.addEventListener("click", async () => {
+                if (!(await askDelete())) return;
+                const r = await api("/api/events/" + btn.dataset.delete, { method: "DELETE" });
+                if (r.ok || r.status === 204) location.reload();
+                else {
+                    const err = await r.json().catch(() => ({}));
+                    alert(err.message || "Could not delete");
+                }
+            });
+        });
+                    } catch (ex) {
+                root.innerHTML = `<div class="account-empty"><h3>Error</h3><p>${esc(ex.message)}</p></div>`;
+            }
+        })();
+    </script>
+}

@@ -1,0 +1,24 @@
+﻿@{
+    ViewData["Title"] = "Create Event";
+}
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="~/css/home.css" />
+<link rel="stylesheet" href="~/css/account.css" />
+
+<div class="raceday-home">
+    <section class="account-hero">
+        <p class="account-eyebrow">ORGANISER</p>
+        <h1>Create Event</h1>
+        <p class="account-sub">Set up a new run, walk or cycle event and draw its route on the map.</p>
+    </section>
+
+    <section class="account-section">
+        <div id="account-content" data-page="create">Loading...</div>
+    </section>
+</div>
+
+@section Scripts {
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="~/js/organiser.js" asp-append-version="true"></script>
+}

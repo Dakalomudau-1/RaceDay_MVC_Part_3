@@ -1,0 +1,307 @@
+﻿
+.events-hero {
+    position: relative;
+    min-height: 50vh;
+    display: flex;
+    align-items: center;
+    background: linear-gradient(135deg, #0b0d12 0%, #1a1d24 100%);
+    overflow: hidden;
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+    padding: 0 5%;
+}
+
+    .events-hero::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(rgba(11, 13, 18, 0.85), rgba(11, 13, 18, 0.85)), url('/images/hero-image.png');
+        background-size: cover;
+        background-position: center;
+        z-index: 1;
+    }
+
+.filter-container {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 3rem;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 50px;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    background: white;
+    color: var(--text-secondary-light);
+    border: 2px solid #eee;
+    transition: var(--transition);
+    text-decoration: none;
+}
+
+    .filter-btn:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+    }
+
+    .filter-btn.active {
+        background: var(--accent);
+        color: white;
+        border-color: var(--accent);
+    }
+
+.events-list-section {
+    padding: 4rem 5% 6rem 5%;
+    background: var(--bg-light);
+    min-height: 60vh;
+}
+
+.events-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.event-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    transition: var(--transition);
+    display: flex;
+    flex-direction: column;
+}
+
+    .event-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    }
+
+.event-banner {
+    height: 200px;
+    position: relative;
+    overflow: hidden;
+}
+
+    .event-banner img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+.event-card:hover .event-banner img {
+    transform: scale(1.05);
+}
+
+.event-type-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: var(--accent);
+    color: white;
+    padding: 0.4rem 1rem;
+    border-radius: 50px;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+}
+
+.event-details {
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.event-date-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: var(--bg-dark);
+    color: white;
+    padding: 0.75rem;
+    border-radius: var(--radius-sm);
+    width: 60px;
+    margin-bottom: 1.5rem;
+    line-height: 1;
+}
+
+    .event-date-box span {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: var(--accent);
+        margin-bottom: 4px;
+    }
+
+    .event-date-box strong {
+        font-size: 1.5rem;
+        font-family: var(--font-heading);
+    }
+
+.event-info h3 {
+    font-size: 1.5rem;
+    margin-bottom: 0.75rem;
+    color: var(--text-primary-light);
+}
+
+.event-location, .event-distance {
+    color: var(--text-secondary-light);
+    font-size: 0.95rem;
+    margin-bottom: 0.25rem;
+}
+
+.event-btn {
+    margin-top: auto;
+    padding-top: 1.5rem;
+    font-family: var(--font-heading);
+    font-weight: 700;
+    color: var(--accent);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: var(--transition);
+    text-decoration: none;
+}
+
+    .event-btn:hover {
+        gap: 0.8rem;
+    }
+
+.no-events {
+    text-align: center;
+    padding: 6rem 2rem;
+    background: white;
+    border-radius: var(--radius-lg);
+    max-width: 600px;
+    margin: 3rem auto 0 auto;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+
+    .no-events h3 {
+        font-size: 1.75rem;
+        margin-bottom: 1rem;
+        color: var(--text-primary-light);
+    }
+
+    .no-events p {
+        color: var(--text-secondary-light);
+    }
+
+@media (max-width: 768px) {
+    .events-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.raceday-home .filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 1rem;
+    max-width: 1200px;
+    margin: 0 auto 3rem auto;
+    padding: 1.5rem 1.75rem;
+    background: #fff;
+    border-radius: var(--radius-lg);
+    border-top: 4px solid var(--accent);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+    .raceday-home .filter-bar label {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+        flex: 1 1 170px;
+        font-family: var(--font-heading);
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: var(--text-secondary-light);
+    }
+
+    .raceday-home .filter-bar select,
+    .raceday-home .filter-bar input {
+        width: 100%;
+        height: 48px;
+        padding: 0 1rem;
+        background: var(--bg-light);
+        border: 2px solid transparent;
+        border-radius: var(--radius-sm);
+        font-family: var(--font-body);
+        font-size: 0.95rem;
+        font-weight: 500;
+        letter-spacing: normal;
+        text-transform: none;
+        color: var(--text-primary-light);
+        transition: var(--transition);
+    }
+
+        .raceday-home .filter-bar select:focus,
+        .raceday-home .filter-bar input:focus {
+            outline: none;
+            background: #fff;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px var(--accent-glow);
+        }
+
+.raceday-home .filter-apply {
+    flex: 0 0 auto;
+    height: 48px;
+    padding: 0 2rem;
+    border: none;
+    border-radius: 50px;
+    background: var(--accent);
+    color: #fff;
+    font-family: var(--font-heading);
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    box-shadow: 0 8px 20px var(--accent-glow);
+    transition: var(--transition);
+}
+
+    .raceday-home .filter-apply:hover {
+        background: var(--accent-hover);
+        transform: translateY(-2px);
+    }
+
+.raceday-home .filter-clear {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    height: 48px;
+    padding: 0 1.25rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 50px;
+    font-family: var(--font-heading);
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-secondary-light);
+    transition: var(--transition);
+}
+
+    .raceday-home .filter-clear:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+    }
+
+@media (max-width: 768px) {
+    .raceday-home .filter-apply,
+    .raceday-home .filter-clear {
+        flex: 1 1 100%;
+        justify-content: center;
+    }
+}

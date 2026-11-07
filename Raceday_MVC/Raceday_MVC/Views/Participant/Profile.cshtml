@@ -1,0 +1,22 @@
+﻿@{
+    ViewData["Title"] = "My Profile";
+}
+
+<link rel="stylesheet" href="~/css/home.css" />
+<link rel="stylesheet" href="~/css/account.css" />
+
+<div class="raceday-home">
+    <section class="account-hero">
+        <p class="account-eyebrow">ACCOUNT</p>
+        <h1>My Profile</h1>
+        <p class="account-sub">View and update your details.</p>
+    </section>
+
+    <section class="account-section">
+        <div id="account-content" data-page="profile">Loading...</div>
+    </section>
+</div>
+
+@section Scripts {
+       <script src="~/js/account.js" asp-append-version="true"></script>
+}

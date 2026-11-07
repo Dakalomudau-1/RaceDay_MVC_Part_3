@@ -1,0 +1,309 @@
+﻿@model List<Raceday_MVC.Models.Event>
+
+@{
+    ViewData["Title"] = "RaceDay";
+}
+
+<link rel="stylesheet" href="~/css/home.css" />
+<link rel="stylesheet" href="~/css/about.css" />
+
+@section Scripts {
+    <script src="~/js/home.js"></script>
+}
+
+<div class="raceday-home">
+
+    <section class="home-hero">
+        <div class="hero-overlay">
+            <div class="hero-content">
+
+                <p class="hero-eyebrow reveal">WELCOME TO RACEDAY</p>
+
+                <h1 class="reveal">
+                    Find Your Next<br />
+                    <span>Challenge.</span>
+                </h1>
+
+                <p class="hero-text reveal">
+                    Discover running, cycling and walking events,
+                    explore race routes and event information,
+                    and find the challenge that's right for you.
+                </p>
+
+                <div class="hero-buttons reveal">
+                    <a asp-controller="Events" asp-action="Index" class="home-button home-button-primary">
+                        Browse Events
+                    </a>
+
+                    <a asp-controller="Home" asp-action="About" class="home-button home-button-outline">
+                        About RaceDay
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <section class="intro-section">
+
+        <div class="intro-content">
+
+            <p class="section-label reveal">YOUR RACE. YOUR JOURNEY.</p>
+
+            <h2 class="reveal">
+                Everything you need before race day.
+            </h2>
+
+            <p class="reveal">
+                RaceDay gives participants a place to discover upcoming events,
+                explore race information and prepare for their next challenge.
+                Browse available events before deciding when you're ready to
+                join the RaceDay community.
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- EVENT CATEGORIES -->
+    <section id="events" class="categories-section">
+
+        <div class="section-heading">
+
+            <p class="section-label reveal">EXPLORE EVENTS</p>
+
+            <h2 class="reveal">
+                Choose Your Challenge
+            </h2>
+
+            <p class="reveal">
+                Whether you're looking for a run, a cycling challenge or a
+                walking event, explore what's available and find your next
+                event.
+            </p>
+
+        </div>
+
+
+        <div class="category-grid">
+
+            <!-- RUNNING -->
+            <article class="category-card">
+                <div class="category-image">
+                    <img src="~/images/Running.jpg" alt="Running event" />
+                </div>
+                <div class="category-content">
+                    <p class="category-label reveal">RUNNING</p>
+                    <h3 class="reveal">Run Your Distance</h3>
+                    <p class="reveal">
+                        Discover running events across different distances
+                        and locations. Explore each event's route, date,
+                        weather information and everything you need to know
+                        before race day.
+                    </p>
+
+                    <a asp-controller="Events" asp-action="Index" asp-route-eventType="Run" class="category-link reveal">
+                        View Running Events <span>→</span>
+                    </a>
+                </div>
+            </article>
+
+            <!-- CYCLING -->
+            <article class="category-card">
+                <div class="category-image">
+                    <img src="~/images/Cycling.jpg" alt="Cycling event" />
+                </div>
+                <div class="category-content">
+                    <p class="category-label reveal">CYCLING</p>
+                    <h3 class="reveal">Take on the Route</h3>
+                    <p class="reveal">
+                        Explore cycling events and discover routes,
+                        distances and locations before taking on your next
+                        challenge. Find an event that matches the ride
+                        you're looking for.
+                    </p>
+                    <a asp-controller="Events" asp-action="Index" asp-route-eventType="Cycle" class="category-link reveal">
+                        View Cycling Events <span>→</span>
+                    </a>
+                </div>
+            </article>
+
+            <!-- WALKING -->
+            <article class="category-card">
+                <div class="category-image">
+                    <img src="~/images/Walking.jpg" alt="Walking event" />
+                </div>
+                <div class="category-content">
+                    <p class="category-label reveal">WALKING</p>
+                    <h3 class="reveal">Find Your Pace</h3>
+                    <p class="reveal">
+                        Explore walking events across different locations
+                        and distances. View event information and discover
+                        the route before deciding which challenge is right
+                        for you.
+                    </p>
+                    <a asp-controller="Events" asp-action="Index" asp-route-eventType="Walk" class="category-link reveal">
+                        View Walking Events <span>→</span>
+                    </a>
+                </div>
+            </article>
+
+        </div>
+
+    </section>
+
+
+    <!-- UPCOMING EVENTS -->
+    <section class="upcoming-section">
+
+        <div class="upcoming-heading">
+            <div>
+                <p class="section-label reveal">WHAT'S HAPPENING</p>
+                <h2 class="reveal">Upcoming Events</h2>
+                <p class="reveal">
+                    Take a look at some of the events currently available
+                    through RaceDay.
+                </p>
+            </div>
+            <a asp-controller="Events" asp-action="Index" class="view-all-link reveal">View All Events</a>
+        </div>
+
+
+        @if (Model != null && Model.Any())
+        {
+            <div class="upcoming-list">
+                @foreach (var eventItem in Model.Take(3))
+                {
+                    <article class="upcoming-event">
+                        <div class="upcoming-date">
+                            <span>@eventItem.EventDate.ToString("MMM")</span>
+                            <strong>@eventItem.EventDate.ToString("dd")</strong>
+                            <small>@eventItem.EventDate.ToString("yyyy")</small>
+                        </div>
+                        <div class="upcoming-details">
+                            <p class="event-category reveal">@eventItem.EventType</p>
+                            <h3 class="reveal">@eventItem.Name</h3>
+                            <p class="reveal">@eventItem.Location</p>
+                        </div>
+                        <div class="upcoming-action">
+                            <a asp-controller="Events" asp-action="Details" asp-route-id="@eventItem.EventId" class="text-link reveal">
+                                View Event <span>→</span>
+                            </a>
+                        </div>
+                    </article>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="no-events">
+                <h3 class="reveal">No upcoming events available.</h3>
+                <p class="reveal">Please check back later for new RaceDay events.</p>
+            </div>
+        }
+
+    </section>
+
+    <!-- PREVIOUS EVENTS -->
+    <section id="previous-events" class="categories-section">
+
+        <div class="section-heading">
+            <p class="section-label reveal">LOOK BACK</p>
+            <h2 class="reveal">Previous Events</h2>
+            <p class="reveal">
+                See how past events went. Choose a category to browse
+                previous events, view their details and check the results.
+            </p>
+        </div>
+
+        <div class="category-grid">
+
+            <!-- PREVIOUS RUNS -->
+            <article class="category-card">
+                <div class="category-image">
+                    <img src="~/images/Running.jpg" alt="Previous running events" />
+                </div>
+                <div class="category-content">
+                    <p class="category-label reveal">RUNNING</p>
+                    <h3 class="reveal">Past Runs</h3>
+                    <p class="reveal">Browse completed running events and see how everyone finished.</p>
+                    <a asp-controller="Events" asp-action="Index" asp-route-eventType="Run" asp-fragment="previous" class="category-link reveal">
+                        View Previous Runs <span>→</span>
+                    </a>
+                </div>
+            </article>
+
+            <!-- PREVIOUS CYCLES -->
+            <article class="category-card">
+                <div class="category-image">
+                    <img src="~/images/Cycling.jpg" alt="Previous cycling events" />
+                </div>
+                <div class="category-content">
+                    <p class="category-label reveal">CYCLING</p>
+                    <h3 class="reveal">Past Rides</h3>
+                    <p class="reveal">Browse completed cycling events and check the results board.</p>
+                    <a asp-controller="Events" asp-action="Index" asp-route-eventType="Cycle" asp-fragment="previous" class="category-link reveal">
+                        View Previous Rides <span>→</span>
+                    </a>
+                </div>
+            </article>
+
+            <!-- PREVIOUS WALKS -->
+            <article class="category-card">
+                <div class="category-image">
+                    <img src="~/images/Walking.jpg" alt="Previous walking events" />
+                </div>
+                <div class="category-content">
+                    <p class="category-label reveal">WALKING</p>
+                    <h3 class="reveal">Past Walks</h3>
+                    <p class="reveal">Browse completed walking events and see the results.</p>
+                    <a asp-controller="Events" asp-action="Index" asp-route-eventType="Walk" asp-fragment="previous" class="category-link reveal">
+                        View Previous Walks <span>→</span>
+                    </a>
+                </div>
+            </article>
+
+        </div>
+
+    </section>
+
+    <!-- ABOUT SECTION -->
+    <section id="about" class="about-section">
+
+        <div class="about-image">
+            <img src="~/images/About-RaceDay.jpg" alt="Participants taking part in a RaceDay event" />
+        </div>
+
+        <div class="about-content">
+            <p class="section-label reveal">ABOUT RACEDAY</p>
+            <h2 class="reveal">Built around the experience of race day.</h2>
+            <p class="reveal">
+                RaceDay brings event information together so participants
+                can discover and understand an event before taking part.
+            </p>
+            <p class="reveal">
+                From event details and race routes to weather information
+                and results from completed events, RaceDay is designed to
+                give participants the information they need throughout
+                their race journey.
+            </p>
+            <a asp-controller="Home" asp-action="About" class="home-button home-button-light reveal">Learn More</a>
+        </div>
+
+    </section>
+
+
+    <!-- FINAL CTA -->
+    <section class="join-section">
+        <div class="join-content">
+            <p class="section-label reveal">YOUR NEXT CHALLENGE AWAITS</p>
+            <h2 class="reveal">Ready to join an event?</h2>
+            <p class="reveal">
+                Explore the available events and find the challenge
+                that interests you.
+            </p>
+            <a asp-controller="Events" asp-action="Index" class="home-button home-button-primary reveal">Browse Events</a>
+        </div>
+    </section>
+</div>

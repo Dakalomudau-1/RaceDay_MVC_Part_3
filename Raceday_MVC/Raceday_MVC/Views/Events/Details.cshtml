@@ -1,0 +1,163 @@
+﻿@model Raceday_MVC.Models.Event
+
+@{
+    ViewData["Title"] = Model.Name;
+    var isPast = Model.EventDate < DateTime.Now;
+    var eventEnd = Model.EventDate.AddHours(6);
+    var hasEnded = DateTime.Now >= eventEnd;
+}
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link rel="stylesheet" href="~/css/home.css" />
+<link rel="stylesheet" href="~/css/details.css" asp-append-version="true" />
+
+<div class="raceday-home">
+    <section class="details-hero@(string.IsNullOrWhiteSpace(Model.BannerImageUrl) ? "" : " has-banner")" style="--hero-img: url('@Model.BannerImageUrl')">
+        <div class="hero-overlay">
+            <div class="hero-content">
+                <p class="hero-eyebrow reveal">@Model.EventType.ToUpper()</p>
+                <h1 class="reveal">@Model.Name</h1>
+                <p class="hero-text reveal">@Model.Description</p>
+
+                <div class="countdown-container reveal">
+                    <span id="countdown-label" class="countdown-label">@(hasEnded ? "Took Place:" : "Starts In:")</span>
+                    <div id="countdown" class="countdown-timer">Loading...</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="info-section">
+        <div class="info-grid">
+            <div class="info-card reveal">
+                <span class="info-label">DATE</span>
+                <strong>@Model.EventDate.ToString("dd MMM yyyy")</strong>
+            </div>
+            <div class="info-card reveal">
+                <span class="info-label">DISTANCE</span>
+                <strong>@Model.DistanceKm km</strong>
+            </div>
+            <div class="info-card reveal">
+                <span class="info-label">LOCATION</span>
+                <strong>@Model.Location</strong>
+            </div>
+            <div class="info-card reveal">
+                <span class="info-label">ELEVATION</span>
+                <strong>@(Model.Route?.ElevationGain ?? 0) m</strong>
+            </div>
+            <div class="info-card reveal">
+                <span class="info-label">ORGANISER</span>
+                <strong>@(Model.Organiser?.FullName ?? "TBA")</strong>
+            </div>
+        </div>
+    </section>
+
+    @if (Model.Categories != null && Model.Categories.Any())
+    {
+        <section class="categories-detail-section">
+            <div class="section-heading reveal">
+                <p class="section-label">CATEGORIES</p>
+                <h2>Available Categories</h2>
+            </div>
+            <div class="cat-grid">
+                @foreach (var c in Model.Categories)
+                {
+                    var ageText = c.MinAge.HasValue && c.MaxAge.HasValue ? $"Ages {c.MinAge}–{c.MaxAge}"
+                    : c.MinAge.HasValue ? $"Ages {c.MinAge}+"
+                    : c.MaxAge.HasValue ? $"Up to {c.MaxAge} years"
+                    : "All ages";
+                    <article class="cat-card reveal">
+                        <h3>@c.Name</h3>
+                        <p>@ageText</p>
+                        @if (c.DistanceKm.HasValue && c.DistanceKm > 0)
+                        {
+                            <span class="cat-distance">@c.DistanceKm km</span>
+                        }
+                    </article>
+                }
+            </div>
+        </section>
+    }
+
+    <section class="map-weather-section">
+        <div class="container">
+            <div class="map-weather-grid">
+                <div class="map-container reveal">
+                    <div id="map"></div>
+                </div>
+
+                <div class="weather-widget reveal">
+                    <div class="weather-header">
+                        <h3>Race Day Forecast</h3>
+                        <p id="weather-location">Loading location...</p>
+                    </div>
+                    <div class="weather-body">
+                        <img id="weather-icon" src="" alt="Weather Icon" class="weather-icon" />
+                        <div class="weather-temp">
+                            <span id="weather-temp">--</span>°C
+                        </div>
+                    </div>
+                    <p id="weather-desc" class="weather-desc">Loading weather data...</p>
+                    <div class="weather-details">
+                        <div class="weather-detail">
+                            <span>Humidity</span>
+                            <strong id="weather-humidity">--%</strong>
+                        </div>
+                        <div class="weather-detail">
+                            <span>Wind</span>
+                            <strong id="weather-wind">-- km/h</strong>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    @if (hasEnded)
+    {
+        <section class="results-section">
+            <div class="container">
+                <div class="section-heading reveal">
+                    <p class="section-label">RESULTS</p>
+                    <h2>Results Board</h2>
+                </div>
+
+                <div class="results-table-wrapper reveal">
+                    <table class="results-table">
+                        <thead>
+                            <tr>
+                                <th>Position</th>
+                                <th>Participant</th>
+                                <th>Finish Time</th>
+                            </tr>
+                        </thead>
+                        <tbody id="results-body">
+                            <tr><td colspan="3">Loading results...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+    }
+    else
+    {
+        <section class="join-section">
+            <div class="join-content reveal">
+                <p class="section-label">READY TO RACE?</p>
+                <h2>Secure your spot today.</h2>
+                <a href="#" data-event-id="@Model.EventId" class="home-button home-button-primary join-trigger">Join Event</a>   
+            </div>
+        </section>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        window.eventId = @Model.EventId;
+        window.eventDateStr = '@Model.EventDate.ToString("yyyy-MM-ddTHH:mm:ss")';
+        window.eventEndStr = '@eventEnd.ToString("yyyy-MM-ddTHH:mm:ss")';
+    </script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="~/js/details.js?v=3"></script>
+    <script src="~/js/home.js"></script>
+}
