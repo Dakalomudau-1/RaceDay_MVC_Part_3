@@ -1,0 +1,12 @@
+﻿namespace RaceDay.Models
+{
+    public class Organiser
+    {
+        public int OrganiserId { get; set; }
+        public int UserId { get; set; } 
+        public string FullName { get; set; }
+        public string PhoneNumber { get; set; }
+        public string ProfilePictureUrl { get; set; }
+        public User User { get; set; }
+    }
+}

@@ -1,0 +1,66 @@
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using RaceDay.Models;
+using RaceDay.NewFolder;
+
+namespace RaceDay.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class OrganisersController : ControllerBase
+    {
+        private readonly RaceDayContext _context;
+
+        public OrganisersController(RaceDayContext context)
+        {
+            _context = context;
+        }
+
+        [HttpGet]
+        public IActionResult GetOrganisers()
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+
+            if (userId == null)
+            {
+                return Unauthorized(new
+                {
+                    message = "Please log in first."
+                });
+            }
+
+            var organiser = _context.Organisers
+                .FirstOrDefault(o => o.UserId == userId);
+
+            if (organiser == null)
+            {
+                return StatusCode(403, new
+                {
+                    message = "Only organisers can view this resource."
+                });
+            }
+
+            return Ok(_context.Organisers
+                .Select(o => new
+                {
+                    o.OrganiserId,
+                    o.FullName,
+                    o.ProfilePictureUrl
+                })
+                .ToList());
+        }
+
+        [HttpGet("{id}")]
+        public IActionResult GetOrganiser(int id)
+        {
+            var organiser = _context.Organisers.FirstOrDefault(o => o.OrganiserId == id);
+            if (organiser == null)
+                return NotFound(new { message = "Organiser not found" });
+
+            return Ok(new { organiser.OrganiserId,
+                organiser.FullName,
+                organiser.ProfilePictureUrl 
+            });
+        }
+    }
+}

@@ -1,0 +1,47 @@
+﻿using Microsoft.EntityFrameworkCore;
+using RaceDay.Models;
+using Route = RaceDay.Models.Route;
+
+namespace RaceDay.NewFolder
+{
+    public class RaceDayContext : DbContext
+    {
+        public RaceDayContext(DbContextOptions<RaceDayContext> options)
+            : base(options)
+        {
+        }
+
+        public DbSet<User> Users { get; set; }
+
+        public DbSet<Organiser> Organisers { get; set; }
+
+        public DbSet<Participant> Participants { get; set; }
+
+        public DbSet<Event> Events { get; set; }
+
+        public DbSet<Category> Categories { get; set; }
+
+        public DbSet<Enrolment> Enrolments { get; set; }
+
+        public DbSet<Result> Results { get; set; }
+
+        public DbSet<Route> Routes { get; set; }
+
+        public DbSet<Waypoint> Waypoints { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<User>().ToTable("USER");
+            modelBuilder.Entity<Organiser>().ToTable("ORGANISER");
+            modelBuilder.Entity<Participant>().ToTable("PARTICIPANT");
+            modelBuilder.Entity<Event>().ToTable("EVENT");
+            modelBuilder.Entity<Category>().ToTable("CATEGORY");
+            modelBuilder.Entity<Enrolment>().ToTable("ENROLMENT");
+            modelBuilder.Entity<Result>().ToTable("RESULTS");
+            modelBuilder.Entity<Route>().ToTable("ROUTE");
+            modelBuilder.Entity<Waypoint>().ToTable("WAYPOINT");
+
+            base.OnModelCreating(modelBuilder);
+        }
+    }
+}

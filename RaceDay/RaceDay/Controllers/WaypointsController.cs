@@ -1,0 +1,83 @@
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using RaceDay.Models;
+using RaceDay.NewFolder;
+
+namespace RaceDay.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class WaypointsController : ControllerBase
+    {
+        private readonly RaceDayContext _context;
+
+        public WaypointsController(RaceDayContext context)
+        {
+            _context = context;
+        }
+
+        [HttpGet]
+        public IActionResult GetAllWaypoints()
+        {
+            return Ok(_context.Waypoints
+                .OrderBy(w => w.RouteId)
+                .ThenBy(w => w.SequenceNo)
+                .Select(w => new
+                {
+                    w.WayPointId,
+                    w.RouteId,
+                    w.SequenceNo,
+                    w.Latitude,
+                    w.Longitude,
+                    Route = _context.Routes
+                    .Where(r => r.RouteId == w.RouteId)
+                    .Select(r => new { r.RouteId, r.RouteName })
+                    .FirstOrDefault()
+                })
+            .ToList());
+        }
+
+        [HttpGet("{id}")]
+        public IActionResult GetWaypoint(int id)
+        {
+            var waypoint = _context.Waypoints.FirstOrDefault(w => w.WayPointId == id);
+            if (waypoint == null)
+                return NotFound(new { message = "Waypoint not found" });
+
+            return Ok(new
+            {
+                waypoint.WayPointId,
+                waypoint.RouteId,
+                waypoint.SequenceNo,
+                waypoint.Latitude,
+                waypoint.Longitude,
+                Route = _context.Routes
+                .Where(r => r.RouteId == waypoint.RouteId)
+                .Select(r => new { r.RouteId, r.RouteName })
+                .FirstOrDefault()
+            });
+        }
+
+        [HttpGet("routes/{routeId}")]
+        public IActionResult GetWaypointsByRoute(int routeId)
+        {
+            var waypoints = _context.Waypoints
+                .Where(w => w.RouteId == routeId)
+                .OrderBy(w => w.SequenceNo)
+                .Select(w => new
+                {
+                    w.WayPointId,
+                    w.RouteId,
+                    w.SequenceNo,
+                    w.Latitude,
+                    w.Longitude,
+                    Route = _context.Routes
+                    .Where(r => r.RouteId == w.RouteId)
+                    .Select(r => new { r.RouteId, r.RouteName })
+                    .FirstOrDefault()
+                })
+                .ToList();
+            return Ok(waypoints);
+        }
+    }
+}

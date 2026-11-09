@@ -1,0 +1,284 @@
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
+using RaceDay.Models;
+using RaceDay.NewFolder;
+using Route = RaceDay.Models.Route;
+
+
+namespace RaceDay.Controllers
+{
+    [Route("api/routes")]
+    [ApiController]
+
+    public class RoutesController : ControllerBase
+    {
+        private readonly RaceDayContext _context;
+
+        public RoutesController(RaceDayContext context)
+        {
+            _context = context;
+        }
+
+        [HttpGet]
+        public IActionResult GetAllRoutes()
+        {
+            return Ok(_context.Routes
+                .Select(route => new
+                {
+                    route.RouteId,
+                    route.EventId,
+                    route.RouteName,
+                    route.StartLatitude,
+                    route.StartLongitude,
+                    route.ElevationGain,
+                    route.MapUrl,
+
+                    Event = _context.Events
+                        .Where(e => e.EventId == route.EventId)
+                        .Select(e => new
+                        {
+                            e.EventId,
+                            e.Name
+                        })
+                        .FirstOrDefault(),
+
+                    Waypoints = _context.Waypoints
+                        .Where(w => w.RouteId == route.RouteId)
+                        .OrderBy(w => w.SequenceNo)
+                        .Select(w => new
+                        {
+                            w.SequenceNo,
+                            w.Latitude,
+                            w.Longitude
+                        })
+                        .ToList()
+                })
+                .ToList());
+        }
+
+        [HttpGet("{id}")]
+        public IActionResult GetRoute(int id)
+        {
+            var route = _context.Routes.FirstOrDefault(r => r.RouteId == id);
+            if (route == null)
+                return NotFound(new { message = "Route not found" });
+
+            return Ok(new
+            {
+                route.RouteId,
+                route.EventId,
+                route.RouteName,
+                route.StartLatitude,
+                route.StartLongitude,
+                route.ElevationGain,
+                route.MapUrl,
+                Event = _context.Events
+         .Where(e => e.EventId == route.EventId)
+         .Select(e => new { e.EventId, e.Name })
+         .FirstOrDefault(),
+                Waypoints = _context.Waypoints
+         .Where(w => w.RouteId == route.RouteId)
+         .OrderBy(w => w.SequenceNo)
+         .Select(w => new { w.SequenceNo, w.Latitude, w.Longitude })
+            });
+        }
+
+        [HttpGet("~/api/events/{eventId}/route")]
+        public IActionResult GetRouteByEvent(int eventId)
+        {
+            var eventItem = _context.Events.FirstOrDefault(e => e.EventId == eventId);
+            if (eventItem == null)
+                return NotFound(new { message = "Event not found" });
+
+            var route = _context.Routes.FirstOrDefault(r => r.EventId == eventId);
+            if (route == null)
+                return NotFound(new { message = "No route set for this event" });
+
+            var waypoints = _context.Waypoints
+                .Where(w => w.RouteId == route.RouteId)
+                .OrderBy(w => w.SequenceNo)
+                .Select(w => new
+                {
+                    w.SequenceNo,
+                    w.Latitude,
+                    w.Longitude
+                })
+                .ToList();
+
+            return Ok(new
+            {
+                route.RouteId,
+                route.RouteName,
+                route.StartLatitude,
+                route.StartLongitude,
+                route.ElevationGain,
+                route.MapUrl,
+                Waypoints = waypoints
+            });
+        }
+
+        [HttpPost("~/api/events/{eventId}/route")]
+        public IActionResult CreateOrUpdateRoute(int eventId, [FromBody] CreateRouteRequest request)
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (!userId.HasValue)
+                return Unauthorized(new { message = "You must be logged in" });
+
+            var user = _context.Users.FirstOrDefault(u => u.UserId == userId.Value);
+            if (user == null || user.Role != "Organiser")
+                return StatusCode(403, new { message = "Only organisers can manage routes" });
+
+            var eventItem = _context.Events.FirstOrDefault(e => e.EventId == eventId);
+            if (eventItem == null)
+                return NotFound(new { message = "Event not found" });
+
+            var organiser = _context.Organisers.FirstOrDefault(o => o.OrganiserId == eventItem.OrganiserId);
+            if (organiser == null || organiser.UserId != userId.Value)
+                return StatusCode(403, new { message = "Only the organiser who owns this event can manage routes" });
+
+            if (request.Waypoints == null ||
+                request.StartLatitude < -90 || request.StartLatitude > 90 ||
+                request.StartLongitude < -180 || request.StartLongitude > 180 ||
+                request.Waypoints.Any(w => w.Latitude < -90 || w.Latitude > 90 || w.Longitude < -180 || w.Longitude > 180))
+                return BadRequest(new { message = "Invalid or missing coordinates/waypoints" });
+
+            var existingRoute = _context.Routes.FirstOrDefault(r => r.EventId == eventId);
+            if (existingRoute != null)
+            {
+                // Update existing route
+                existingRoute.RouteName = request.RouteName;
+                existingRoute.StartLatitude = request.StartLatitude;
+                existingRoute.StartLongitude = request.StartLongitude;
+                existingRoute.ElevationGain = request.ElevationGain;
+                existingRoute.MapUrl = request.MapUrl;
+
+                // Remove old waypoints
+                var waypoints = _context.Waypoints.Where(w => w.RouteId == existingRoute.RouteId).ToList();
+                _context.Waypoints.RemoveRange(waypoints);
+                existingRoute.Waypoints.Clear();
+
+                // Add new waypoints
+                foreach (var waypointDto in request.Waypoints)
+                {
+                    var waypoint = new Waypoint
+                    {
+                        RouteId = existingRoute.RouteId,
+                        SequenceNo = waypointDto.Sequence,
+                        Latitude = waypointDto.Latitude,
+                        Longitude = waypointDto.Longitude
+                    };
+                    _context.Waypoints.Add(waypoint);
+
+                    existingRoute.Waypoints.Add(waypoint);
+                }
+                _context.SaveChanges();
+
+                return Ok(new
+                {
+                    existingRoute.RouteId,
+                    existingRoute.RouteName,
+                    existingRoute.StartLatitude,
+                    existingRoute.StartLongitude,
+                    existingRoute.ElevationGain,
+                    existingRoute.MapUrl,
+                    Waypoints = _context.Waypoints
+                        .Where(w => w.RouteId == existingRoute.RouteId)
+                        .OrderBy(w => w.SequenceNo)
+                        .Select(w => new { w.SequenceNo, w.Latitude, w.Longitude })
+                });
+            }
+            else
+            {
+                // Create new route
+                var route = new Route
+                {
+                    EventId = eventId,
+                    RouteName = request.RouteName,
+                    StartLatitude = request.StartLatitude,
+                    StartLongitude = request.StartLongitude,
+                    ElevationGain = request.ElevationGain,
+                    MapUrl = request.MapUrl,
+                    Waypoints = new List<Waypoint>()
+                };
+
+                _context.Routes.Add(route);
+                _context.SaveChanges();
+
+                eventItem.Route = route;
+
+                // Add waypoints
+                foreach (var waypointDto in request.Waypoints)
+                {
+                    _context.Waypoints.Add(new Waypoint
+                    {
+                        RouteId = route.RouteId,
+                        SequenceNo = waypointDto.Sequence,
+                        Latitude = waypointDto.Latitude,
+                        Longitude = waypointDto.Longitude
+                    });
+                }
+                _context.SaveChanges();
+
+                return Ok(new
+                {
+                    route.RouteId,
+                    route.RouteName,
+                    route.StartLatitude,
+                    route.StartLongitude,
+                    route.ElevationGain,
+                    route.MapUrl,
+                    Waypoints = _context.Waypoints
+                        .Where(w => w.RouteId == route.RouteId)
+                        .OrderBy(w => w.SequenceNo)
+                        .Select(w => new { w.SequenceNo, w.Latitude, w.Longitude })
+                });
+            }
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult DeleteRoute(int id)
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            if (!userId.HasValue)
+                return Unauthorized(new { message = "You must be logged in" });
+
+            var route = _context.Routes.FirstOrDefault(r => r.RouteId == id);
+            if (route == null)
+                return NotFound(new { message = "Route not found" });
+
+            var eventItem = _context.Events.FirstOrDefault(e => e.EventId == route.EventId);
+            if (eventItem == null)
+                return NotFound(new { message = "Associated event not found" });
+
+            var organiser = _context.Organisers.FirstOrDefault(o => o.OrganiserId == eventItem.OrganiserId);
+            if (organiser == null || organiser.UserId != userId.Value)
+                return StatusCode(403, new { message = "Only the organiser who owns this event can delete the route" });
+
+            _context.Waypoints.RemoveRange(_context.Waypoints.Where(w => w.RouteId == route.RouteId));
+            _context.Routes.Remove(route);
+            _context.SaveChanges();
+
+            eventItem.Route = null;
+
+            return NoContent();
+        }
+
+        public class CreateRouteRequest
+        {
+            public string RouteName { get; set; }
+            public decimal StartLatitude { get; set; }
+            public decimal StartLongitude { get; set; }
+            public decimal? ElevationGain { get; set; }
+            public string MapUrl { get; set; }
+            public List<WaypointDto> Waypoints { get; set; }
+        }
+
+        public class WaypointDto
+        {
+            public int Sequence { get; set; }
+            public decimal Latitude { get; set; }
+            public decimal Longitude { get; set; }
+        }
+    }
+}
