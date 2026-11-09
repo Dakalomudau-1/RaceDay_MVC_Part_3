@@ -1,0 +1,67 @@
+using RaceDay.Models;
+using System.Security.Cryptography;
+using System.Text;
+using Route = RaceDay.Models.Route;
+
+namespace RaceDay.NewFolder
+{
+    public class DataStore
+    {
+        public List<User> Users { get; set; } = new List<User>();
+        public List<Organiser> Organisers { get; set; } = new List<Organiser>();
+        public List<Participant> Participants { get; set; } = new List<Participant>();
+        public List<Event> Events { get; set; } = new List<Event>();
+        public List<Category> Categories { get; set; } = new List<Category>();
+        public List<Enrolment> Enrolments { get; set; } = new List<Enrolment>();
+        public List<Result> Results { get; set; } = new List<Result>();
+        public List<Route> Routes { get; set; } = new List<Route>();
+        public List<Waypoint> Waypoints { get; set; } = new List<Waypoint>();
+
+        public int UserIdCounter = 1;
+        public int OrganiserIdCounter = 1;
+        public int ParticipantIdCounter = 1;
+        public int EventIdCounter = 1;
+        public int CategoryIdCounter = 1;
+        public int EnrolmentIdCounter = 1;
+        public int ResultIdCounter = 1;
+        public int RouteIdCounter = 1;
+        public int WaypointIdCounter = 1;
+    
+
+     public DataStore()
+        {
+            SeedDefaultOrganiser();
+        }
+
+        private void SeedDefaultOrganiser()
+        {
+            var defaultUser = new User
+            {
+                UserId = UserIdCounter++,
+                Email = "User@organiser.com",
+                PasswordHash = HashPassword("Passw0rd!"),
+                Role = "Organiser",
+                CreatedAt = DateTime.Now
+            };
+            Users.Add(defaultUser);
+
+            var defaultOrganiser = new Organiser
+            {
+                OrganiserId = OrganiserIdCounter++,
+                UserId = defaultUser.UserId,
+                FullName = "Dakalo Mudau",
+                PhoneNumber = "067882930",
+                ProfilePictureUrl = "",
+                User = defaultUser
+            };
+            Organisers.Add(defaultOrganiser);
+        }
+
+        private static string HashPassword(string password)
+        {
+            using var sha256 = SHA256.Create();
+            var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+            return Convert.ToBase64String(hashedBytes);
+        }
+    }
+}
